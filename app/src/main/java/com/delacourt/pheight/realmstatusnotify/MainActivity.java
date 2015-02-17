@@ -1,5 +1,6 @@
 package com.delacourt.pheight.realmstatusnotify;
 
+import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
@@ -35,17 +36,62 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 
-public class MainActivity extends ListActivity {
+public class MainActivity extends ActionBarActivity {
 
     public final static String EXTRA_MESSAGE = "com.delacourt.pheight.realmstatusnotify.";
 
+    ListView listView;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Get ListView object from xml
+        listView = (ListView) findViewById(R.id.myList1);
 
+        // Defined Array values to show in ListView
+        String[] values = new String[] { "Select Realm", "Notification Settings"
+        };
+
+        // Define a new Adapter
+        // First parameter - Context
+        // Second parameter - Layout for the row
+        // Third parameter - ID of the TextView to which the data is written
+        // Forth - the Array of data
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+                android.R.layout.simple_list_item_1, android.R.id.text1, values);
+
+
+        // Assign adapter to ListView
+        listView.setAdapter(adapter);
+
+        // ListView Item Click Listener
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view,
+                                    int position, long id) {
+
+                if (position == 0 ) {
+                    sendMessage(view);
+                }
+
+                // ListView Clicked item index
+                int itemPosition     = position;
+
+                // ListView Clicked item value
+                String  itemValue    = (String) listView.getItemAtPosition(position);
+
+                // Show Alert
+                Toast.makeText(getApplicationContext(),
+                        "Position :"+itemPosition+"  ListItem : " +itemValue , Toast.LENGTH_LONG)
+                        .show();
+
+            }
+
+    });
     }
 
     /** Called when the user clicks the Send button */

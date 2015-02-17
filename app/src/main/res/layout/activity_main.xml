@@ -7,16 +7,11 @@ android:orientation="vertical">
      Always give id value as list(@android:id/list)
 -->
     <!-- Editext for Search -->
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/button_send"
-        android:onClick="sendMessage" />
 
-    <ListView
-    android:id="@android:id/list"
-    android:layout_width="fill_parent"
-    android:layout_height="wrap_content"/>
+    <ListView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/myList1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 
 
 </LinearLayout>
