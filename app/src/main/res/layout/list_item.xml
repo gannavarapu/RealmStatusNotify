@@ -11,20 +11,26 @@
 
     <TextView
         android:id="@+id/name"
-        android:layout_width="fill_parent"
+        android:layout_width="188dp"
         android:layout_height="wrap_content"
-        android:paddingBottom="2dip"
-        android:paddingTop="6dip"
-        android:textColor="#43bd00"
+        android:textColor="#000"
         android:textSize="16sp"
         android:textStyle="bold" />
 
-    <!-- Email label -->
     <TextView
         android:id="@+id/status"
-        android:layout_width="fill_parent"
+        android:layout_width="188dp"
         android:layout_height="wrap_content"
-        android:paddingBottom="2dip"
-        android:textColor="#acacac" />
+        android:textColor="#000"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/imageButton"
+        android:layout_gravity="right" />
+
+    <!-- Email label -->
 
 </LinearLayout>

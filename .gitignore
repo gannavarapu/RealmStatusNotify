@@ -5,3 +5,4 @@
 .DS_Store
 /build
 /API.java
+app/src/main/java/com/delacourt/pheight/realmstatusnotify/API.java

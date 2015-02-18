@@ -52,19 +52,19 @@ public class RealmSelection extends ListActivity {
         boolean checked = ((RadioButton) view).isChecked();
 
         // Check which radio button was clicked
-        switch(view.getId()) {
+        switch (view.getId()) {
             case R.id.united_states:
                 if (checked)
                     url = "https://us.api.battle.net/wow/realm/status?locale=en_US&apikey=" + APIkey;
-                    break;
+                break;
             case R.id.es_mx:
                 if (checked)
                     url = "https://us.api.battle.net/wow/realm/status?locale=es_MX&apikey=" + APIkey;
-                    break;
+                break;
             case R.id.pt_br:
                 if (checked)
                     url = "https://us.api.battle.net/wow/realm/status?locale=pt_BR&apikey=" + APIkey;
-                    break;
+                break;
         }
 
         return url;
@@ -163,8 +163,7 @@ public class RealmSelection extends ListActivity {
              * */
             ListAdapter adapter = new SimpleAdapter(
                     RealmSelection.this, contactList,
-                    R.layout.list_item, new String[] { TAG_NAME, TAG_STATUS }, new int[] { R.id.name,
-                    R.id.status });
+                    R.layout.list_item, new String[]{TAG_NAME, TAG_STATUS}, new int[]{R.id.name, R.id.status});
 
             setListAdapter(adapter);
         }
@@ -173,53 +172,3 @@ public class RealmSelection extends ListActivity {
     }
 
 }
-
-/*
-        if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new PlaceholderFragment())
-                    .commit();
-        }
-    }
-
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    /**
-     * A placeholder fragment containing a simple view.
-
-    public static class PlaceholderFragment extends Fragment {
-
-        public PlaceholderFragment() {
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-            return rootView;
-        }
-    }
-}
-*/
-
