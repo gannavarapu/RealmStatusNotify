@@ -3,7 +3,9 @@ package com.delacourt.pheight.realmstatusnotify;
 import android.app.ActivityManager;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
@@ -32,6 +34,16 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -39,6 +51,8 @@ import java.util.HashMap;
 public class RealmSelection extends ListActivity {
 
     public final static String EXTRA_MESSAGE = "com.delacourt.pheight.realmstatusnotify.MESSAGE";
+
+    public final static String FILENAME = "Realms";
 
     private ProgressDialog pDialog;
 
@@ -92,7 +106,41 @@ public class RealmSelection extends ListActivity {
 
         ListView lv = getListView();
 
-        new GetContacts().execute();
+        //Check to see if file is empty. If it is populate it with data from server.
+        String ret = "";
+
+        try {
+            InputStream inputStream = openFileInput(FILENAME);
+            File file = getBaseContext().getFileStreamPath(FILENAME);
+            if ( inputStream != null ) {
+                FileInputStream fileIn = openFileInput(FILENAME);
+                ObjectInputStream in = new ObjectInputStream(fileIn);
+                contactList = (ArrayList<HashMap<String, String>>) in.readObject();
+                in.close();
+            }
+            else
+            {
+                new GetContacts().execute();
+            }
+
+            inputStream.close();
+
+            ListAdapter adapter = new SimpleAdapter(
+                    RealmSelection.this, contactList,
+                    R.layout.list_item, new String[]{TAG_NAME, TAG_STATUS}, new int[]{R.id.name, R.id.status});
+
+            setListAdapter(adapter);
+        }
+        catch (FileNotFoundException e) {
+            Log.e("login activity", "File not found: " + e.toString());
+            new GetContacts().execute();
+        } catch (IOException e) {
+            Log.e("login activity", "Can not read file: " + e.toString());
+        } catch (ClassNotFoundException cnf) {
+            //TODO
+        }
+
+
     }
 
     private class GetContacts extends AsyncTask<Void, Void, Void> {
@@ -166,6 +214,24 @@ public class RealmSelection extends ListActivity {
                     R.layout.list_item, new String[]{TAG_NAME, TAG_STATUS}, new int[]{R.id.name, R.id.status});
 
             setListAdapter(adapter);
+
+            // Put the realms into a retrievable file
+            try {
+                FileOutputStream fileOut = openFileOutput(FILENAME,MODE_WORLD_READABLE);
+                ObjectOutputStream outputStream = new ObjectOutputStream(fileOut);
+                outputStream.writeObject(contactList);
+                outputStream.flush();
+                outputStream.close();
+                fileOut.close();
+            }
+            catch (FileNotFoundException fnf)
+            {
+                //TODO
+            }
+            catch (IOException e)
+            {
+                //TODO
+            }
         }
 
 
