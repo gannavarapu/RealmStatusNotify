@@ -7,7 +7,7 @@
          Always give id value as list(@android:id/list)
     -->
     <!-- Editext for Search -->
-    <EditText android:id="@+id/inputSearch"
+    <!--<EditText android:id="@+id/inputSearch"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:hint="Search for Realm..."
@@ -34,7 +34,7 @@
             android:text="@string/pt_br"
             android:onClick="onRadioButtonClicked"/>
     </RadioGroup>
-
+    -->
     <ListView
         android:id="@android:id/list"
         android:layout_width="fill_parent"
