@@ -66,7 +66,8 @@ public class RealmSelection extends ListActivity {
         boolean checked = ((RadioButton) view).isChecked();
 
         // Check which radio button was clicked
-        switch (view.getId()) {
+        // Comment out until Sprint 2
+        /*switch (view.getId()) {
             case R.id.united_states:
                 if (checked)
                     url = "https://us.api.battle.net/wow/realm/status?locale=en_US&apikey=" + APIkey;
@@ -79,7 +80,7 @@ public class RealmSelection extends ListActivity {
                 if (checked)
                     url = "https://us.api.battle.net/wow/realm/status?locale=pt_BR&apikey=" + APIkey;
                 break;
-        }
+        } */
 
         return url;
     }
