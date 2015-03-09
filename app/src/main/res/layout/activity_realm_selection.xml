@@ -7,7 +7,7 @@
          Always give id value as list(@android:id/list)
     -->
     <!-- Editext for Search -->
-    <!--<EditText android:id="@+id/inputSearch"
+    <EditText android:id="@+id/inputSearch"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:hint="Search for Realm..."
@@ -23,15 +23,10 @@
             android:text="@string/united_states"
             android:checked="true"
             android:onClick="onRadioButtonClicked"/>
-        <RadioButton android:id="@+id/es_mx"
+        <RadioButton android:id="@+id/europe"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/es_mx"
-            android:onClick="onRadioButtonClicked"/>
-        <RadioButton android:id="@+id/pt_br"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/pt_br"
             android:onClick="onRadioButtonClicked"/>
     </RadioGroup>
     -->
