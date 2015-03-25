@@ -10,6 +10,10 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
+        <service
+            android:enabled="true"
+            android:name=".RealmService"
+            android:exported="false" />
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"

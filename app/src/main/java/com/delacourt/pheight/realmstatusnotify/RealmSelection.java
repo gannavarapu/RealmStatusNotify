@@ -1,106 +1,64 @@
 package com.delacourt.pheight.realmstatusnotify;
 
-import android.app.Activity;
-import android.app.ActivityManager;
+
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.os.Build;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
-import android.widget.Toast;
+
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 
 public class RealmSelection extends ListActivity {
 
-    public final static String EXTRA_MESSAGE = "com.delacourt.pheight.realmstatusnotify.MESSAGE";
-
-    public static final String PREFS_NAME = "MyPrefsFile";
-
+    // Set default filenames
     private String FILENAME = "USrealms";
-
     private String SELECTED_REALMS_FILE = "SelectedRealms";
 
+
     private ProgressDialog pDialog;
-
-    // List for storing and removing selected realms
-    List<String> selectedRealms = new ArrayList<String>();
-
-    // Hide api key
-    API key = new API();
-    String APIkey = key.getAPI();
-    String url = "https://us.api.battle.net/wow/realm/status?locale=en_US&apikey=" + APIkey;
-
-    public void onRadioButtonClicked(View view) {
-        // Is the button now checked?
-        boolean checked = ((RadioButton) view).isChecked();
-
-        // Check which radio button was clicked
-        switch (view.getId()) {
-            case R.id.united_states:
-                if (checked)
-                    url = "https://us.api.battle.net/wow/realm/status?locale=en_US&apikey=" + APIkey;
-                    FILENAME = "USrealms";
-                    contactList.clear();
-                    findRealms();
-                break;
-            case R.id.europe:
-                if (checked)
-                    url = "https://eu.api.battle.net/wow/realm/status?locale=es_MX&apikey=" + APIkey;
-                    FILENAME = "EUrealms";
-                    contactList.clear();
-                    findRealms();
-                break;
-        }
-    }
 
     // JSON Node names
     private static final String TAG_REALMS = "realms";
     private static final String TAG_STATUS = "status";
     private static final String TAG_NAME = "name";
 
-    // contacts JSONArray
-    JSONArray contacts = null;
+    // realms JSONArray
+    JSONArray realms = null;
+
+    // List for storing and removing selected realms
+    ArrayList<HashMap<String, String>> selectedRealms = new ArrayList<HashMap<String, String>>();
+
+    // Hide api key in another file
+    API key = new API();
+    String APIkey = key.getAPI();
+    String url = "https://us.api.battle.net/wow/realm/status?locale=en_US&apikey=" + APIkey;
 
     // Hashmap for ListView
     ArrayList<HashMap<String, String>> contactList;
@@ -114,44 +72,50 @@ public class RealmSelection extends ListActivity {
 
         contactList = new ArrayList<HashMap<String, String>>();
 
-        ListView lv = getListView();
-
-        //Check to see if file is empty. If it is populate it with data from server.
-        String ret = "";
-
-        // Pull previously selected realms in from the file.
-        try {
-            InputStream inputStream = openFileInput(SELECTED_REALMS_FILE);
-            File file = getBaseContext().getFileStreamPath(SELECTED_REALMS_FILE);
-            if (inputStream != null) {
-                FileInputStream fileIn = openFileInput(SELECTED_REALMS_FILE);
-                ObjectInputStream in = new ObjectInputStream(fileIn);
-                selectedRealms = (ArrayList<String>) in.readObject();
-                in.close();
-            }
-            inputStream.close();
-            
-        } catch (FileNotFoundException e) {
-            Log.e("login activity", "File not found: " + e.toString());
-            new GetContacts().execute();
-        } catch (IOException e) {
-            Log.e("login activity", "Can not read file: " + e.toString());
-        } catch (ClassNotFoundException cnf) {
-            //TODO
-        }
-
         findRealms();
+    }
+
+    public void onRadioButtonClicked(View view) {
+        // Is the button now checked?
+        boolean checked = ((RadioButton) view).isChecked();
+
+        // Check which radio button was clicked
+        switch (view.getId()) {
+            case R.id.united_states:
+                if (checked)
+                    url = "https://us.api.battle.net/wow/realm/status?locale=en_US&apikey=" + APIkey;
+                FILENAME = "USrealms";
+                contactList.clear();
+                findRealms();
+                break;
+            case R.id.europe:
+                if (checked)
+                    url = "https://eu.api.battle.net/wow/realm/status?locale=es_MX&apikey=" + APIkey;
+                FILENAME = "EUrealms";
+                contactList.clear();
+                findRealms();
+                break;
+        }
     }
 
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
         // Do something when a list item is clicked
         TextView txtTechCharacteristic = (TextView) v.findViewById(R.id.name);
-        String str = (String) txtTechCharacteristic.getText();
-        if (selectedRealms.contains(str)) {
-            selectedRealms.remove(str);
+        TextView txtTechCharacteristic2 = (TextView) v.findViewById(R.id.status);
+        String nameSTR = (String) txtTechCharacteristic.getText();
+        String statusSTR = (String) txtTechCharacteristic2.getText();
+        // tmp hashmap for single contact
+        HashMap<String, String> realm = new HashMap<String, String>();
+
+        // adding each child node to HashMap key => value
+        realm.put(TAG_STATUS, statusSTR);
+        realm.put(TAG_NAME, nameSTR);
+
+        if (selectedRealms.contains(realm)) {
+            selectedRealms.remove(realm);
         } else {
-            selectedRealms.add(str);
+            selectedRealms.add(realm);
 
             // Store the list of selected realms into SharedPreferences for later retrieval
             try {
@@ -170,54 +134,52 @@ public class RealmSelection extends ListActivity {
     }
 
 
+
     private void findRealms() {
-    ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-    NetworkInfo checkNetwork = connManager.getActiveNetworkInfo();
+        ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo checkNetwork = connManager.getActiveNetworkInfo();
 
-    // Check if network is connected
-    // If it isn't, pull up realms from storage
-    // If it is pull down realms from server
-    if(checkNetwork==null)
+        // Check if network is connected
+        // If it isn't, pull up realms from storage
+        // If it is, pull down realms from server
+        if (checkNetwork == null)
+        {
+            // If not connected
+            try {
+                InputStream inputStream = openFileInput(FILENAME);
+                File file = getBaseContext().getFileStreamPath(FILENAME);
+                if (inputStream != null) {
+                    FileInputStream fileIn = openFileInput(FILENAME);
+                    ObjectInputStream in = new ObjectInputStream(fileIn);
+                    contactList = (ArrayList<HashMap<String, String>>) in.readObject();
+                    in.close();
+                } else {
+                    new GetRealms().execute();
+                }
 
-    {
-        // If not connected
-        try {
-            InputStream inputStream = openFileInput(FILENAME);
-            File file = getBaseContext().getFileStreamPath(FILENAME);
-            if (inputStream != null) {
-                FileInputStream fileIn = openFileInput(FILENAME);
-                ObjectInputStream in = new ObjectInputStream(fileIn);
-                contactList = (ArrayList<HashMap<String, String>>) in.readObject();
-                in.close();
-            } else {
-                new GetContacts().execute();
+                inputStream.close();
+
+                ListAdapter adapter = new SimpleAdapter(
+                        RealmSelection.this, contactList,
+                        R.layout.list_item, new String[]{TAG_NAME, TAG_STATUS}, new int[]{R.id.name, R.id.status});
+
+                setListAdapter(adapter);
+            } catch (FileNotFoundException e) {
+                Log.e("login activity", "File not found: " + e.toString());
+                new GetRealms().execute();
+            } catch (IOException e) {
+                Log.e("login activity", "Can not read file: " + e.toString());
+            } catch (ClassNotFoundException cnf) {
+                //TODO
             }
+        } else
 
-            inputStream.close();
-
-            ListAdapter adapter = new SimpleAdapter(
-                    RealmSelection.this, contactList,
-                    R.layout.list_item, new String[]{TAG_NAME, TAG_STATUS}, new int[]{R.id.name, R.id.status});
-
-            setListAdapter(adapter);
-        } catch (FileNotFoundException e) {
-            Log.e("login activity", "File not found: " + e.toString());
-            new GetContacts().execute();
-        } catch (IOException e) {
-            Log.e("login activity", "Can not read file: " + e.toString());
-        } catch (ClassNotFoundException cnf) {
-            //TODO
+        {
+            new GetRealms().execute();
         }
     }
 
-    else
-
-    {
-        new GetContacts().execute();
-    }
-}
-
-    private class GetContacts extends AsyncTask<Void, Void, Void> {
+    public class GetRealms extends AsyncTask<Void, Void, Void> {
 
         @Override
         protected void onPreExecute() {
@@ -245,11 +207,11 @@ public class RealmSelection extends ListActivity {
                     JSONObject jsonObj = new JSONObject(jsonStr);
 
                     // Getting JSON Array node
-                    contacts = jsonObj.getJSONArray(TAG_REALMS);
+                    realms = jsonObj.getJSONArray(TAG_REALMS);
 
-                    // looping through All Contacts
-                    for (int i = 0; i < contacts.length(); i++) {
-                        JSONObject c = contacts.getJSONObject(i);
+                    // looping through All Realms
+                    for (int i = 0; i < realms.length(); i++) {
+                        JSONObject c = realms.getJSONObject(i);
 
                         String status = c.getString(TAG_STATUS);
                         String name = c.getString(TAG_NAME);
@@ -280,10 +242,9 @@ public class RealmSelection extends ListActivity {
             // Dismiss the progress dialog
             if (pDialog.isShowing())
                 pDialog.dismiss();
-            /**
-             * Updating parsed JSON data into ListView
-             * */
-             ListAdapter adapter = new SimpleAdapter(
+
+            // Updating parsed JSON data into ListView
+            ListAdapter adapter = new SimpleAdapter(
                     RealmSelection.this, contactList,
                     R.layout.list_item, new String[]{TAG_NAME, TAG_STATUS}, new int[]{R.id.name, R.id.status});
 
@@ -291,24 +252,20 @@ public class RealmSelection extends ListActivity {
 
             // Put the realms into a retrievable file
             try {
-                FileOutputStream fileOut = openFileOutput(FILENAME,MODE_WORLD_READABLE);
+                FileOutputStream fileOut = openFileOutput(FILENAME, MODE_WORLD_READABLE);
                 ObjectOutputStream outputStream = new ObjectOutputStream(fileOut);
                 outputStream.writeObject(contactList);
                 outputStream.flush();
                 outputStream.close();
                 fileOut.close();
-            }
-            catch (FileNotFoundException fnf)
-            {
+            } catch (FileNotFoundException fnf) {
                 //TODO
-            }
-            catch (IOException e)
-            {
+            } catch (IOException e) {
                 //TODO
             }
         }
 
 
     }
-
 }
+

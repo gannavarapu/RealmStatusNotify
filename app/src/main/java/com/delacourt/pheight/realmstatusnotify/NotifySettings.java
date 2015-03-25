@@ -1,5 +1,6 @@
 package com.delacourt.pheight.realmstatusnotify;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.View;
@@ -8,10 +9,9 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
-/**
- * Created by Shane on 2/17/2015.
- */
+
 public class NotifySettings extends ActionBarActivity {
+
     ListView listView;
 
     @Override
@@ -20,10 +20,10 @@ public class NotifySettings extends ActionBarActivity {
         setContentView(R.layout.activity_notify_settings);
 
         // Get ListView object from xml
-        listView = (ListView) findViewById(R.id.myList2);
+        listView = (ListView) findViewById(R.id.notificationMenu);
 
         // Defined Array values to show in ListView
-        String[] values = new String[] { "Turn on Notifications", "Select Tone"
+        String[] values = new String[] { "Turn on Notifications", "Turn off Notifications" ,"Select Tone"
         };
 
         // Define a new Adapter
@@ -47,21 +47,23 @@ public class NotifySettings extends ActionBarActivity {
                                     int position, long id) {
 
                 if (position == 0 ) {
+                   startRealmService();
                 }
 
-                // ListView Clicked item index
-                int itemPosition     = position;
-
-                // ListView Clicked item value
-                String  itemValue    = (String) listView.getItemAtPosition(position);
-
-                // Show Alert
-                Toast.makeText(getApplicationContext(),
-                        "Position :" + itemPosition + "  ListItem : " + itemValue, Toast.LENGTH_LONG)
-                        .show();
+                if (position == 1 ) {
+                    stopRealmService();
+                }
 
             }
 
         });
+    }
+
+    public void startRealmService() {
+        startService(new Intent(this, RealmService.class));
+    }
+
+    public void stopRealmService() {
+        stopService(new Intent(this, RealmService.class));
     }
 }

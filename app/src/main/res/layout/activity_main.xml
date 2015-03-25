@@ -9,7 +9,7 @@ android:orientation="vertical">
     <!-- Editext for Search -->
 
     <ListView xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/myList1"
+        android:id="@+id/mainMenu"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
