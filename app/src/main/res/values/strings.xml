@@ -10,5 +10,6 @@
     <string name="united_states">US</string>
     <string name="pt_br">BR</string>
     <string name="es_mx">Europe</string>
+    <string name="title_activity_tone_selection">ToneSelection</string>
 
 </resources>

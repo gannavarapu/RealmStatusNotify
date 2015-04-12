@@ -8,6 +8,8 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -22,17 +24,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 
 public class RealmSelection extends ListActivity {
@@ -65,15 +60,52 @@ public class RealmSelection extends ListActivity {
 
     EditText inputSearch;
 
+    FileIO fileManipulation = new FileIO();
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_realm_selection);
 
+        inputSearch = (EditText) findViewById(R.id.inputSearch);
         contactList = new ArrayList<HashMap<String, String>>();
 
+        try {
+            selectedRealms = fileManipulation.loadVariableFromFile(SELECTED_REALMS_FILE, getBaseContext());
+        } catch (FileNotFoundException e) {
+            Log.e("login activity", "File not found: " + e.toString());
+        } catch (IOException e) {
+            Log.e("login activity", "Can not read file: " + e.toString());
+        } catch (ClassNotFoundException cnf) {
+        //TODO
+        }
+
         findRealms();
+
+        inputSearch.addTextChangedListener(new EditTextWatcher());
     }
+
+    private class EditTextWatcher implements TextWatcher {
+
+        @Override
+        public void afterTextChanged(Editable arg0) {
+            // TODO Auto-generated method stub
+        }
+
+        @Override
+        public void beforeTextChanged(CharSequence arg0, int arg1,
+                                      int arg2, int arg3) {
+            // TODO Auto-generated method stub
+        }
+
+        @Override
+        public void onTextChanged(CharSequence arg0, int arg1, int arg2,
+                                  int arg3) {
+            // TODO Auto-generated method stub
+            ((SimpleAdapter) RealmSelection.this.getListAdapter()).getFilter().filter(arg0);
+        }
+    }
+
 
     public void onRadioButtonClicked(View view) {
         // Is the button now checked?
@@ -119,12 +151,7 @@ public class RealmSelection extends ListActivity {
 
             // Store the list of selected realms into SharedPreferences for later retrieval
             try {
-                FileOutputStream fileOut = openFileOutput(SELECTED_REALMS_FILE, MODE_WORLD_READABLE);
-                ObjectOutputStream outputStream = new ObjectOutputStream(fileOut);
-                outputStream.writeObject(selectedRealms);
-                outputStream.flush();
-                outputStream.close();
-                fileOut.close();
+                fileManipulation.outputToFile(selectedRealms, SELECTED_REALMS_FILE, getBaseContext());
             } catch (FileNotFoundException fnf) {
                 //TODO
             } catch (IOException e) {
@@ -146,18 +173,7 @@ public class RealmSelection extends ListActivity {
         {
             // If not connected
             try {
-                InputStream inputStream = openFileInput(FILENAME);
-                File file = getBaseContext().getFileStreamPath(FILENAME);
-                if (inputStream != null) {
-                    FileInputStream fileIn = openFileInput(FILENAME);
-                    ObjectInputStream in = new ObjectInputStream(fileIn);
-                    contactList = (ArrayList<HashMap<String, String>>) in.readObject();
-                    in.close();
-                } else {
-                    new GetRealms().execute();
-                }
-
-                inputStream.close();
+                contactList = fileManipulation.loadVariableFromFile(FILENAME, getBaseContext());
 
                 ListAdapter adapter = new SimpleAdapter(
                         RealmSelection.this, contactList,
@@ -252,12 +268,7 @@ public class RealmSelection extends ListActivity {
 
             // Put the realms into a retrievable file
             try {
-                FileOutputStream fileOut = openFileOutput(FILENAME, MODE_WORLD_READABLE);
-                ObjectOutputStream outputStream = new ObjectOutputStream(fileOut);
-                outputStream.writeObject(contactList);
-                outputStream.flush();
-                outputStream.close();
-                fileOut.close();
+                fileManipulation.outputToFile(contactList, FILENAME, getBaseContext());
             } catch (FileNotFoundException fnf) {
                 //TODO
             } catch (IOException e) {
