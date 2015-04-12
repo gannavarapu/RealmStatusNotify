@@ -7,8 +7,6 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
-
 
 public class NotifySettings extends ActionBarActivity {
 
@@ -54,6 +52,10 @@ public class NotifySettings extends ActionBarActivity {
                     stopRealmService();
                 }
 
+                if (position == 2) {
+                    toneSelection();
+                }
+
             }
 
         });
@@ -65,5 +67,10 @@ public class NotifySettings extends ActionBarActivity {
 
     public void stopRealmService() {
         stopService(new Intent(this, RealmService.class));
+    }
+
+    public void toneSelection() {
+        Intent intent = new Intent(this, ToneSelection.class);
+        startActivity(intent);
     }
 }

@@ -3,7 +3,7 @@
     package="com.delacourt.pheight.realmstatusnotify" >
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"></uses-permission>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:allowBackup="true"
@@ -11,9 +11,10 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <service
-            android:enabled="true"
             android:name=".RealmService"
+            android:enabled="true"
             android:exported="false" />
+
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
@@ -39,6 +40,10 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.delacourt.pheight.realmstatusnotify.MainActivity" />
+        </activity>
+        <activity
+            android:name=".ToneSelection"
+            android:label="@string/title_activity_tone_selection" >
         </activity>
     </application>
 

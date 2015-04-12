@@ -1,40 +1,31 @@
 package com.delacourt.pheight.realmstatusnotify;
 
-import android.app.Notification;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.app.ProgressDialog;
 import android.app.Service;
-import android.app.TaskStackBuilder;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
+import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.IBinder;
 import android.os.SystemClock;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
-import android.widget.ListAdapter;
-import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Set;
 
 
 public class RealmService extends Service {
+
+    public static final String PREFS_NAME = "MyPrefsFile";
 
     private static final String TAG = "RealmService";
     private String SELECTED_REALMS_FILE = "SelectedRealms";
@@ -46,6 +37,8 @@ public class RealmService extends Service {
     String nameRealm;
 
     Boolean activeThread = true;
+
+    FileIO fileManipulation = new FileIO();
 
     // JSON Node names
     private static final String TAG_REALMS = "realms";
@@ -83,15 +76,7 @@ public class RealmService extends Service {
         Log.d(TAG, "onStart");
         try {
             // Read in previously selected realms
-            InputStream inputStream = openFileInput(SELECTED_REALMS_FILE);
-            File file = getBaseContext().getFileStreamPath(SELECTED_REALMS_FILE);
-            if (inputStream != null) {
-                FileInputStream fileIn = openFileInput(SELECTED_REALMS_FILE);
-                ObjectInputStream in = new ObjectInputStream(fileIn);
-                realmsSelected = (ArrayList<HashMap<String, String>>) in.readObject();
-                in.close();
-            }
-
+            realmsSelected = fileManipulation.loadVariableFromFile(SELECTED_REALMS_FILE, getBaseContext());
         } catch (FileNotFoundException e) {
             Log.e("login activity", "File not found: " + e.toString());
             Toast.makeText(this, "No realms have been selected.", Toast.LENGTH_LONG).show();
@@ -159,7 +144,7 @@ public class RealmService extends Service {
 
                 for (int n = 0; n < realmsSelected.size(); ++n) {
                     tempRealm = realmsSelected.get(n);
-                    if ( contactList.contains(tempRealm)) {
+                    if (contactList.contains(tempRealm)) {
                         // Remove the object and then change the status
                         // Add the new object back into realmsSelected
                         realmsSelected.remove(n);
@@ -178,12 +163,7 @@ public class RealmService extends Service {
 
                         // Write the new selected realm list to file
                         try {
-                            FileOutputStream fileOut = openFileOutput(SELECTED_REALMS_FILE, MODE_WORLD_READABLE);
-                            ObjectOutputStream outputStream = new ObjectOutputStream(fileOut);
-                            outputStream.writeObject(realmsSelected);
-                            outputStream.flush();
-                            outputStream.close();
-                            fileOut.close();
+                            fileManipulation.outputToFile(realmsSelected, SELECTED_REALMS_FILE, getBaseContext());
                         } catch (FileNotFoundException fnf) {
                             //TODO
                         } catch (IOException e) {
@@ -215,11 +195,15 @@ public class RealmService extends Service {
     }
 
     private void sendNotification(String realmName, String realmStatus) {
+        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+        String usersTone = settings.getString("userTone", "blacksmith1");
+        assert usersTone != null : "No tone has been selected";
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
                         .setAutoCancel(true)
                         .setSmallIcon(R.drawable.ic_launcher)
                         .setContentTitle("Realm Status")
+                        .setSound(Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + getPackageName() + "/raw/" + usersTone))
                         .setContentText(realmName + " is now " + realmStatus);
         NotificationManager mNotificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
